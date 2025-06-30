@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Piano的世界</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "微软雅黑", sans-serif;
+      background-color: #ffe6f2;
+      color: #333;
+      position: relative;
+    }
+
+    header {
+      background-color: #faadc9;
+      padding: 10px 0;
+      position: relative;
+    }
+
+    nav {
+      width: 90%;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .nav-left {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .nav-right {
+      display: flex;
+      gap: 10px;
+    }
+
+    nav ul li a {
+      text-decoration: none;
+      color: #fff;
+      font-size: 14px;
+      padding: 5px 10px;
+      transition: background-color 0.3s;
+    }
+
+    nav ul li a:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .container {
+      width: 90%;
+      margin: 20px auto;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .banner {
+      max-width: 100%;
+      height: 200px;
+    }
+
+    .banner img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .welcome {
+      padding: 20px;
+    }
+
+    .welcome h2 {
+      color: #f0a5c1;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .welcome p {
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+
+    .welcome .side-img {
+      float: right;
+      margin-left: 20px;
+      width: 180px;
+      border-radius: 4px;
+      transition: transform 0.3s ease;
+    }
+
+    .welcome .side-img:hover {
+      transform: translateY(-5px);
+    }
+
+    /* 图片网格布局 */
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr); /* 每行5张图片 */
+      gap: 10px; /* 图片间距 */
+      padding: 20px;
+    }
+
+    .image-item {
+      position: relative;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+    }
+
+    .image-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .image-item img {
+      width: 100%;
+      height: 150px; /* 固定高度，保持比例 */
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .image-item:hover img {
+      transform: scale(1.05);
+    }
+
+    /* 响应式调整：小屏幕下每行显示2-3张 */
+    @media (max-width: 768px) {
+      .image-grid {
+        grid-template-columns: repeat(2, 1fr); /* 移动端每行2张 */
+      }
+    }
+
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .image-grid {
+        grid-template-columns: repeat(3, 1fr); /* 平板每行3张 */
+      }
+    }
+
+    .content-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 20px;
+    }
+
+    .content-col {
+      flex: 1;
+      margin: 0 10px;
+      text-align: center;
+      background-color: #f9f9f9;
+      padding: 15px;
+      border-radius: 6px;
+    }
+
+    .content-col img {
+      width: 100%;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .content-col h3 {
+      color: #f79fbf;
+      margin-bottom: 10px;
+    }
+
+    .content-col p {
+      margin-bottom: 15px;
+      line-height: 1.4;
+    }
+
+    .content-col a {
+      display: inline-block;
+      text-decoration: none;
+      background-color: #ff87b3;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      transition: background-color 0.3s;
+    }
+
+    .content-col a:hover {
+      background-color: #fba5c3;
+    }
+
+    footer {
+      background-color: #feb0cc;
+      text-align: center;
+      padding: 10px 0;
+      color: #fff;
+      font-size: 12px;
+    }
+
+    /* 图片放大查看模态框 */
+    .image-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+
+    .image-modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      position: relative;
+      max-width: 90%;
+      max-height: 80vh;
+      transition: transform 0.3s;
+    }
+
+    .image-modal.active .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-image {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 8px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+      display: block;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      color: white;
+      font-size: 30px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    .close-btn:hover {
+      color: #ff87b3;
+    }
+
+    .nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      color: white;
+      font-size: 40px;
+      cursor: pointer;
+      transition: color 0.3s;
+      background: none;
+      border: none;
+      z-index: 10;
+    }
+
+    .prev-btn {
+      left: 20px;
+    }
+
+    .next-btn {
+      right: 20px;
+    }
+
+    .nav-btn:hover {
+      color: #ff87b3;
+    }
+
+    .image-number {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      color: white;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <ul>
+        <li class="nav-left"><a href="#">开城</a></li>
+        <li class="nav-right">
+          <a href="https://www.sanrio.com.cn/index.html">首页</a>
+          <a href="https://www.sanrio.com.hk/tc/character-detail/my-sweet-piano" target="_blank">关于Piano</a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="banner">
+      <img src="./08.jpg" alt="Piano横幅">
+    </div>
+
+    <div class="welcome">
+      <h2>欢迎来到Piano的世界</h2>
+      <img src="./06.jpg" alt="Piano小图" class="side-img">
+      <p>Piano小羊是三丽鸥的一个角色，是美乐蒂的闺蜜，英文名是mysweetpiano，昵称是piano酱。
+        它是一只温柔甜美爱撒娇的小绵羊，一身粉色的小卷毛是它最明显的特征。在动画片里，它不会说话，只会咿咿呀呀。</p>
+    </div>
+
+    <!-- 十张图片的网格布局 -->
+    <div class="image-grid" id="imageGrid">
+      <div class="image-item" data-src="./1.jpg" data-alt="Piano图片1">
+        <img src="./1.jpg" alt="Piano图片1">
+      </div>
+      <div class="image-item" data-src="./2.jpeg" data-alt="Piano图片2">
+        <img src="./2.jpeg" alt="Piano图片2">
+      </div>
+      <div class="image-item" data-src="./3.jpg" data-alt="Piano图片3">
+        <img src="./3.jpg" alt="Piano图片3">
+      </div>
+      <div class="image-item" data-src="./4.jpeg" data-alt="Piano图片4">
+        <img src="./4.jpeg" alt="Piano图片4">
+      </div>
+      <div class="image-item" data-src="./5.jpg" data-alt="Piano图片5">
+        <img src="./5.jpg" alt="Piano图片5">
+      </div>
+      <div class="image-item" data-src="./6.jpg" data-alt="Piano图片6">
+        <img src="./6.jpg" alt="Piano图片6">
+      </div>
+      <div class="image-item" data-src="./7.jpg" data-alt="Piano图片7">
+        <img src="./7.jpg" alt="Piano图片7">
+      </div>
+      <div class="image-item" data-src="./8.jpg" data-alt="Piano图片8">
+        <img src="./8.jpg" alt="Piano图片8">
+      </div>
+      <div class="image-item" data-src="./9.jpeg" data-alt="Piano图片9">
+        <img src="./9.jpeg" alt="Piano图片9">
+      </div>
+      <div class="image-item" data-src="./10.jpeg" data-alt="Piano图片10">
+        <img src="./10.jpeg" alt="Piano图片10">
+      </div>
+    </div>
+
+    <div class="content-row">
+      <div class="content-col">
+        <h3>你也</h3>
+        <img src="./05.jpeg" alt="">
+        <p>欢迎来到Piano的世界</p>
+      </div>
+      <div class="content-col">
+        <h3>喜欢</h3>
+        <img src="./04.jpg" alt="">
+        <p>快来和我一起探索piano</p>
+      </div>
+      <div class="content-col">
+        <h3>Piano嘛</h3>
+        <img src="./0.gif" alt="">
+        <p>敬请欣赏Piano吧！！！</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>©Piano网站仅用于自用，不用于任何商业，图片选取于三丽鸥，开城 保留所有权利</p>
+    <p>本网站由小六子独家赞助。</p>
+  </footer>
+
+  <!-- 图片放大查看模态框 -->
+  <div class="image-modal" id="imageModal">
+    <span class="close-btn" id="closeBtn">&times;</span>
+    <span class="prev-btn" id="prevBtn">◀</span>
+    <span class="next-btn" id="nextBtn">▶</span>
+    <span class="image-number" id="imageNumber"></span>
+    <div class="modal-content">
+      <img src="" alt="" class="modal-image" id="modalImage">
+    </div>
+  </div>
+
+  <script>
+    // 获取DOM元素
+    const imageModal = document.getElementById('imageModal');
+    const modalImage = document.getElementById('modalImage');
+    const closeBtn = document.getElementById('closeBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const imageNumber = document.getElementById('imageNumber');
+    const imageItems = document.querySelectorAll('.image-item');
+
+    let currentImageIndex = 0;
+    const imageSources = [];
+
+    // 收集所有图片的源地址和替代文本
+    imageItems.forEach((item, index) => {
+      imageSources.push({
+        src: item.dataset.src,
+        alt: item.dataset.alt
+      });
+    });
+
+    // 打开图片模态框
+    imageItems.forEach((item, index) => {
+      item.addEventListener('click', () => {
+        currentImageIndex = index;
+        openImageModal();
+      });
+    });
+
+    // 打开模态框函数
+    function openImageModal() {
+      modalImage.src = imageSources[currentImageIndex].src;
+      modalImage.alt = imageSources[currentImageIndex].alt;
+      updateImageNumber();
+      imageModal.classList.add('active');
+      document.body.style.overflow = 'hidden'; // 防止背景滚动
+    }
+
+    // 更新图片编号
+    function updateImageNumber() {
+      imageNumber.textContent = `图片 ${currentImageIndex + 1} / ${imageSources.length}`;
+    }
+
+    // 关闭模态框
+    closeBtn.addEventListener('click', () => {
+      imageModal.classList.remove('active');
+      document.body.style.overflow = ''; // 恢复背景滚动
+    });
+
+    // 点击模态框外部关闭
+    imageModal.addEventListener('click', (e) => {
+      if (e.target === imageModal) {
+        imageModal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    });
+
+    // 上一张图片
+    prevBtn.addEventListener('click', () => {
+      currentImageIndex = (currentImageIndex - 1 + imageSources.length) % imageSources.length;
+      openImageModal();
+    });
+
+    // 下一张图片
+    nextBtn.addEventListener('click', () => {
+      currentImageIndex = (currentImageIndex + 1) % imageSources.length;
+      openImageModal();
+    });
+
+    // 键盘导航
+    document.addEventListener('keydown', (e) => {
+      if (imageModal.classList.contains('active')) {
+        if (e.key === 'Escape') {
+          imageModal.classList.remove('active');
+          document.body.style.overflow = '';
+        } else if (e.key === 'ArrowLeft') {
+          currentImageIndex = (currentImageIndex - 1 + imageSources.length) % imageSources.length;
+          openImageModal();
+        } else if (e.key === 'ArrowRight') {
+          currentImageIndex = (currentImageIndex + 1) % imageSources.length;
+          openImageModal();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
